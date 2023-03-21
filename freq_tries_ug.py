@@ -1,5 +1,13 @@
 from math import log2, inf
 
+
+def corpus_cost(grammar, corpus):
+	cost = 0
+	for example in corpus:
+		cost += parser(grammar, example)
+	return cost
+
+
 def parser(t, word):
 	cost = 0
 	current_sum, current_dict = t

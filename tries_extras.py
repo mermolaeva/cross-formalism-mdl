@@ -27,9 +27,9 @@ def make_trie(words):
 # obtain an analysis from a given corpus
 def corpus_to_trie(corpus_name):
 	words = read_corpus(corpus_name)
-	freq_trie = make_trie(words)
+	trie = make_trie(words)
 	with open(f'tries_{corpus_name}.json', 'w') as outfile:
-		json.dump(freq_trie, outfile)
+		json.dump(trie, outfile)
 
 
 if __name__ == '__main__':
