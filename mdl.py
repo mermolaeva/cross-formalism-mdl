@@ -26,8 +26,8 @@ def total_cost(ug_name, grammar_name, corpus_name):
 	cost = ug_cost + grammar_cost + data_cost
 	
 	print(f'UG: {ug_name}, dataset: {corpus_name}')
-	print(f'UG cost: {ug_cost}, grammar cost: {grammar_cost}, corpus cost: {data_cost}')
-	print(f'Total cost: {cost}\n')
+	print('UG cost: {0:,.3f}, grammar cost: {0:,.3f}, corpus cost: {0:,.3f}'.format(ug_cost, grammar_cost, data_cost))
+	print('Sum: {0:,.3f}\n'.format(cost))
 
 	return cost
 
@@ -56,6 +56,9 @@ ug_names = ['lists', 'tries', 'freq_tries']
 
 if __name__ == '__main__':
 	for ug_name in ug_names:
+		total = 0
 		for corpus_name in corpus_names:
 			grammar_name = f'{ug_name}_{corpus_name}'
-			cost = total_cost(ug_name, grammar_name, corpus_name)
+			total += total_cost(ug_name, grammar_name, corpus_name)
+
+		print('Total for {0}: {1:,.3f}\n'.format(ug_name, total))
