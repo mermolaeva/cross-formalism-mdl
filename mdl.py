@@ -26,7 +26,7 @@ def total_cost(ug_name, grammar_name, corpus_name):
 	cost = ug_cost + grammar_cost + data_cost
 	
 	print(f'UG: {ug_name}, dataset: {corpus_name}')
-	print('UG cost: {0:,.3f}, grammar cost: {0:,.3f}, corpus cost: {0:,.3f}'.format(ug_cost, grammar_cost, data_cost))
+	print('UG cost: {0:,.3f}, grammar cost: {1:,.3f}, corpus cost: {2:,.3f}'.format(ug_cost, grammar_cost, data_cost))
 	print('Sum: {0:,.3f}\n'.format(cost))
 
 	return cost
