@@ -5,6 +5,7 @@ import re
 
 
 def string_cost(s):
+	# s = s.replace('"', '').replace(':', '').replace('{', '').replace('}', '').replace(',', '').replace(' ', '')
 	chars = set(s)
 	cost = len(s) * log2(len(chars))
 	# print(f'String length: {len(s)}, alphabet size: {len(chars)}, symbol cost: {log2(len(chars))}, total cost: {cost}')
@@ -25,7 +26,7 @@ def total_cost(ug_name, grammar_name, corpus_name):
 	data_cost = ug.corpus_cost(grammar, data)
 	cost = ug_cost + grammar_cost + data_cost
 	
-	print(f'UG: {ug_name}, dataset: {corpus_name}')
+	print(f'UG: {ug_name}, dataset: {corpus_name}, words: {len(data)}')
 	print('UG cost: {0:,.3f}, grammar cost: {1:,.3f}, corpus cost: {2:,.3f}'.format(ug_cost, grammar_cost, data_cost))
 	print('Sum: {0:,.3f}\n'.format(cost))
 
@@ -40,7 +41,7 @@ def read_corpus(corpus_name):
 	text = read_file(f'{corpus_name}.txt').strip()
 	text = text.replace('#', '')
 	words = re.split('\n| ', text)
-	print(f'Corpus: {corpus_name}, words: {len(words)}')
+	# print(f'Corpus: {corpus_name}, words: {len(words)}')
 	return words
 
 
@@ -50,8 +51,8 @@ def read_grammar(grammar_name):
 	return grammar
 
 
-corpus_names = ['brown', 'english990',]
-ug_names = ['lists', 'tries', 'freq_tries']
+corpus_names = ['brown', ]
+ug_names = ['promiscuous', 'lists', 'tries', 'freq_tries']
 
 
 if __name__ == '__main__':

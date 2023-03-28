@@ -4,12 +4,13 @@ import json
 
 
 # obtain an analysis from a given corpus
-def corpus_to_list(corpus_name):
+def get_alphabet(corpus_name):
 	words = read_corpus(corpus_name)
-	with open(f'lists_{corpus_name}.json', 'w') as outfile:
-		json.dump(list(set(words)), outfile, separators=(',', ':'))
+	alphabet = list(set(''.join(words)))
+	with open(f'promiscuous_{corpus_name}.json', 'w') as outfile:
+		json.dump(alphabet, outfile, separators=(',', ':'))
 
 
 if __name__ == '__main__':
 	for n in corpus_names:
-		corpus_to_list(n)
+		get_alphabet(n)

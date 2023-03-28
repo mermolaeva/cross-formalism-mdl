@@ -35,7 +35,7 @@ def corpus_to_freq_trie(corpus_name):
 	words = read_corpus(corpus_name)
 	freq_trie = make_freq_trie(words)
 	with open(f'freq_tries_{corpus_name}.json', 'w') as outfile:
-		json.dump(freq_trie, outfile)
+		json.dump(freq_trie, outfile, separators=(',', ':'))
 
 
 if __name__ == '__main__':

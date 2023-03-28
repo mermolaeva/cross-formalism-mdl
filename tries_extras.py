@@ -29,7 +29,7 @@ def corpus_to_trie(corpus_name):
 	words = read_corpus(corpus_name)
 	trie = make_trie(words)
 	with open(f'tries_{corpus_name}.json', 'w') as outfile:
-		json.dump(trie, outfile)
+		json.dump(trie, outfile, separators=(',', ':'))
 
 
 if __name__ == '__main__':
