@@ -1,6 +1,6 @@
-# from tries_ug import * # is allowed to import UG functions, but doesn't have to
 from mdl import read_corpus, corpus_names
 import json
+import re
 
 
 # pretty-printing; NOT part of any MDL term
@@ -12,26 +12,50 @@ def pprint_trie(d, sep="", inherit="", parent=""):
 			else: pprint_trie(d[key], inherit+" ├──", inherit+" │  ", key)
 
 
-# methods obtaining an analysis; NOT part of any MDL term
+# list of special characters; used to minimize the grammar
+special_chars = ['"', ':', ',', ' ']
+special_mark = '###'
+
+
+# methods of obtaining an analysis; NOT part of any MDL term
 # convert a list of words into a trie
 def make_trie(words):
 	root = dict()
 	for word in words:
 		current_dict = root
 		for letter in word:
-			current_dict = current_dict.setdefault(letter, {})
+			key = letter if letter not in special_chars else f'{special_mark}{letter}'
+			current_dict = current_dict.setdefault(key, {})
 		current_dict['#'] = '#'
 	return root
 
 
 # obtain an analysis from a given corpus
-def corpus_to_trie(corpus_name):
+def corpus_to_trie(corpus_name, rev=False):
 	words = read_corpus(corpus_name)
+	if rev: words = [w[::-1] for w in words]
 	trie = make_trie(words)
-	with open(f'tries_{corpus_name}.json', 'w') as outfile:
-		json.dump(trie, outfile, separators=(',', ':'))
+
+	s = json.dumps(trie, separators=(',', ':'), ensure_ascii=False)
+	uncompressed = s.replace(special_mark, '')
+
+	s = s.replace(f'{special_mark}\\\"', f'{special_mark}\"') # un-escape marked double quotes
+
+	for char in special_chars: # remove special chars unless marked
+		s = re.sub(f'(?<!{special_mark}){re.escape(char)}', '', s)
+
+	s = s.replace(special_mark, '') # remove marks
+	s = s.replace('##', '#') # simplify end-of-word notation
+
+	with open(f'{"rev_" if rev else ""}tries_{corpus_name}.txt', 'w', encoding='utf-8') as outfile: # compressed version
+		outfile.write(s)
+
+	with open(f'{"rev_" if rev else ""}tries_{corpus_name}.json', 'w', encoding='utf-8') as outfile: # uncompressed version
+		outfile.write(uncompressed)
+
 
 
 if __name__ == '__main__':
 	for n in corpus_names:
-		corpus_to_trie(n)
+		corpus_to_trie(n, False)
+		corpus_to_trie(n, True)

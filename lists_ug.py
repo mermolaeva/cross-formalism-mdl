@@ -1,4 +1,9 @@
 from math import log2, inf
+from json import loads
+
+
+def unpack_grammar(s):
+	return s.split(' ')
 
 
 def corpus_cost(grammar, corpus):

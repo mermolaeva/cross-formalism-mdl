@@ -1,4 +1,3 @@
-# from tries_ug import * # is allowed to import UG functions, but doesn't have to
 from mdl import read_corpus, corpus_names
 import json
 
@@ -7,8 +6,12 @@ import json
 def get_alphabet(corpus_name):
 	words = read_corpus(corpus_name)
 	alphabet = list(set(''.join(words)))
-	with open(f'promiscuous_{corpus_name}.json', 'w') as outfile:
-		json.dump(alphabet, outfile, separators=(',', ':'))
+
+	with open(f'promiscuous_{corpus_name}.json', 'w', encoding='utf-8') as outfile:
+		json.dump(alphabet, outfile, separators=(',', ':'), ensure_ascii=False)
+	
+	with open(f'promiscuous_{corpus_name}.txt', 'w', encoding='utf-8') as outfile:
+		outfile.write(''.join(alphabet))
 
 
 if __name__ == '__main__':

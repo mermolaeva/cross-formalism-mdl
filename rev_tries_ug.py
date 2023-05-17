@@ -24,6 +24,7 @@ def unpack_grammar(s):
 def corpus_cost(grammar, corpus):
 	cost = 0
 	for example in corpus:
+		example = example[::-1]
 		cost += parser(grammar, example)
 	return cost
 

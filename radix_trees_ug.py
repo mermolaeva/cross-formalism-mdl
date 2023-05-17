@@ -8,9 +8,10 @@ def unpack_grammar(s):
 	for i, c in enumerate(s):
 		if c not in '{}':
 			if i > 0:
-				if not s[i-1] in '{\\': 
-					if s[i-1] != '}': s2 += '"'
+				if s[i-1] == '}':
 					s2 += f', "'
+				elif s[i-1] == '#':
+					s2 += f'", "'
 				elif s[i-1] == '{': s2 += '"'
 			s2 += c
 			if c == '#': s2 += '": "#'
@@ -28,17 +29,18 @@ def corpus_cost(grammar, corpus):
 	return cost
 
 
-def parser(t, word):
+def parser(t, suffix):
 	cost = 0
 	current_dict = t
-	for letter in word:
-		if letter in current_dict:
-			cost += log2(len(current_dict))
-			current_dict = current_dict[letter]
-		else: 
+	while True:
+		for key in current_dict:
+			if len(suffix) == 0 and key == '#':
+				cost += log2(len(current_dict))
+				return cost
+			elif suffix.startswith(key):
+				cost += log2(len(current_dict))
+				current_dict = current_dict[key]
+				suffix = suffix[len(key):]
+				break
+		else:
 			return inf
-	if '#' in current_dict:
-		cost += log2(len(current_dict))
-		return cost
-	else:
-		return inf

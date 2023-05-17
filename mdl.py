@@ -2,46 +2,73 @@ from math import log2
 import json
 import importlib
 import re
+from string import printable
 
 
-def string_cost(s):
-	# s = s.replace('"', '').replace(':', '').replace('{', '').replace('}', '').replace(',', '').replace(' ', '')
-	chars = set(s)
-	cost = len(s) * log2(len(chars))
+ignored_chars = ['#', '{', '}', '[', ']']
+max_lines = 100000
+# TODO: organize grammars and corpora
+
+
+def string_cost(s, alphabet):
+	cost = len(s) * log2(len(alphabet))
 	# print(f'String length: {len(s)}, alphabet size: {len(chars)}, symbol cost: {log2(len(chars))}, total cost: {cost}')
 	return cost
 
 
-def total_cost(ug_name, grammar_name, corpus_name):
+def total_cost(ug_name, grammar_name, corpus_name, alphabet, compress=True):
 	ug = importlib.import_module(f'{ug_name}_ug')
-	grammar = read_grammar(grammar_name)
+	try:
+		assert compress is True
+		grammar_string = open(f'{grammar_name}.txt', 'r').read()
+		grammar = ug.unpack_grammar(grammar_string)
+		unpacked = True
+	except:
+		grammar_string = read_file(f'{grammar_name}.json')
+		grammar = read_grammar(grammar_name)
+		unpacked = False
 
 	ug_string = read_file(f'{ug_name}_ug.py')
-	grammar_string = read_file(f'{grammar_name}.json')
 	
 	data = read_corpus(corpus_name)
 
-	ug_cost = string_cost(ug_string)
-	grammar_cost = string_cost(grammar_string)
+	ug_cost = string_cost(ug_string, alphabet)
+	grammar_cost = string_cost(grammar_string, alphabet) # TODO: inside ug; separate alphabet; variable-length encoding
 	data_cost = ug.corpus_cost(grammar, data)
 	cost = ug_cost + grammar_cost + data_cost
 	
-	print(f'UG: {ug_name}, dataset: {corpus_name}, words: {len(data)}')
-	print('UG cost: {0:,.3f}, grammar cost: {1:,.3f}, corpus cost: {2:,.3f}'.format(ug_cost, grammar_cost, data_cost))
-	print('Sum: {0:,.3f}\n'.format(cost))
+	print(f'UG: {ug_name}, dataset: {corpus_name}, words: {len(data)} {"[optimized]" if unpacked else "[unoptimized]"}')
+	print('UG cost: {0:,.3f}, grammar cost: {1:,.3f}, corpus cost: {2:,.3f}. Sum: {3:,.3f}'.format(ug_cost, grammar_cost, data_cost, cost))
 
 	return cost
 
 
+def get_chars(file_name):
+	chars = set()
+	lines = 0
+	for line in open(file_name, 'r'):
+		if lines < max_lines:
+			lines += 1
+			chars.update(set(line))
+		else:
+			break
+	return chars
+
+
 def read_file(file_name):
-	return open(file_name, 'r').read()
+	lines = []
+	for line in open(file_name, 'r'):
+		if len(lines) < max_lines:
+			lines.append(line)
+		else:
+			break
+	return '\n'.join(lines)
 
 
-def read_corpus(corpus_name):
-	text = read_file(f'{corpus_name}.txt').strip()
-	text = text.replace('#', '')
+def read_corpus(corpus_name, ext='txt'):
+	text = read_file(f'corpora/{corpus_name}.{ext}').strip()
+	for char in ignored_chars: text = text.replace(char, '')
 	words = re.split('\n| ', text)
-	# print(f'Corpus: {corpus_name}, words: {len(words)}')
 	return words
 
 
@@ -51,15 +78,20 @@ def read_grammar(grammar_name):
 	return grammar
 
 
-corpus_names = ['brown', ]
-ug_names = ['promiscuous', 'lists', 'tries', 'freq_tries']
+corpus_names = ['brown', 'turkish', 'swahili']
+# corpus_names = ['english990',]
+
+ug_names = ['promiscuous', 'lists', 'tries', 'rev_tries', 'freq_tries', 'radix_trees']
+# ug_names = ['freq_tries',]
 
 
 if __name__ == '__main__':
+	alphabet = set(printable).union(*[get_chars(f'corpora/{c}.txt') for c in corpus_names])
+
 	for ug_name in ug_names:
 		total = 0
 		for corpus_name in corpus_names:
 			grammar_name = f'{ug_name}_{corpus_name}'
-			total += total_cost(ug_name, grammar_name, corpus_name)
+			total += total_cost(ug_name, grammar_name, corpus_name, alphabet, True)
 
-		print('Total for {0}: {1:,.3f}\n'.format(ug_name, total))
+		print('{0}\nTotal for {1}: {2:,.3f}\n{0}\n'.format("-"*40, ug_name, total))
