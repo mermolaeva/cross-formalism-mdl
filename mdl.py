@@ -7,28 +7,26 @@ from string import printable
 
 ignored_chars = ['#', '{', '}', '[', ']']
 max_lines = 100000
-# TODO: organize grammars and corpora
 
 
 def string_cost(s, alphabet):
 	cost = len(s) * log2(len(alphabet))
-	# print(f'String length: {len(s)}, alphabet size: {len(chars)}, symbol cost: {log2(len(chars))}, total cost: {cost}')
 	return cost
 
 
 def total_cost(ug_name, grammar_name, corpus_name, alphabet, compress=True):
-	ug = importlib.import_module(f'{ug_name}_ug')
+	ug = importlib.import_module(f'{ug_name}.{ug_name}_ug')
 	try:
 		assert compress is True
-		grammar_string = open(f'{grammar_name}.txt', 'r').read()
+		grammar_string = read_file(f'{ug_name}/{grammar_name}.txt', capped=False)
 		grammar = ug.unpack_grammar(grammar_string)
 		unpacked = True
 	except:
-		grammar_string = read_file(f'{grammar_name}.json')
+		grammar_string = read_file(f'{ug_name}/{grammar_name}.json', capped=False)
 		grammar = read_grammar(grammar_name)
 		unpacked = False
 
-	ug_string = read_file(f'{ug_name}_ug.py')
+	ug_string = read_file(f'{ug_name}/{ug_name}_ug.py', capped=False)
 	
 	data = read_corpus(corpus_name)
 
@@ -55,10 +53,10 @@ def get_chars(file_name):
 	return chars
 
 
-def read_file(file_name):
+def read_file(file_name, capped=True):
 	lines = []
 	for line in open(file_name, 'r'):
-		if len(lines) < max_lines:
+		if (not capped) or (len(lines) < max_lines):
 			lines.append(line)
 		else:
 			break
@@ -68,7 +66,7 @@ def read_file(file_name):
 def read_corpus(corpus_name, ext='txt'):
 	text = read_file(f'corpora/{corpus_name}.{ext}').strip()
 	for char in ignored_chars: text = text.replace(char, '')
-	words = re.split('\n| ', text)
+	words = re.findall('[^ \n\t]+', text)
 	return words
 
 
@@ -79,10 +77,10 @@ def read_grammar(grammar_name):
 
 
 corpus_names = ['brown', 'turkish', 'swahili']
-# corpus_names = ['english990',]
+# corpus_names = ['test',]
 
-ug_names = ['promiscuous', 'lists', 'tries', 'rev_tries', 'freq_tries', 'radix_trees']
-# ug_names = ['freq_tries',]
+ug_names = ['promiscuous', 'lists', 'tries', 'freq_tries', 'radix_trees']
+# ug_names = ['radix_trees', ]
 
 
 if __name__ == '__main__':
