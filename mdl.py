@@ -76,8 +76,8 @@ def read_grammar(grammar_name):
 	return grammar
 
 
-corpus_names = ['brown', 'turkish', 'swahili']
-# corpus_names = ['test',]
+# corpus_names = ['brown', 'turkish', 'swahili']
+corpus_names = ['english990',]
 
 ug_names = ['promiscuous', 'lists', 'tries', 'freq_tries', 'radix_trees']
 # ug_names = ['radix_trees', ]
